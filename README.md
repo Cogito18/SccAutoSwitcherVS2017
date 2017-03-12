@@ -1,0 +1,1 @@
+# SccAutoSwitcherVS2017
