@@ -10,7 +10,8 @@ Supported Scc providers are:
  * Visual Studio Tools for Git *(Git, default)*;
  * Git Source Control Provider *(Git)*;
  * HgSccPackage *(mercurial, default)*;
- * VisualHG *(mercurial)*.
+ * VisualHG *(mercurial)*;
+ * P4VS *(Perforce, default)*.
  
 More providers can be added, provided they are regular
 Scc providers and there exists an easy way to detect
@@ -20,6 +21,9 @@ starting from solution root directory.
 It supports Visual Studio 2017. License is MIT.
 
 Based on SccAutoSwitcher by Francesco Pretto (https://github.com/ceztko/SccAutoSwitcher).
+
+Perforce support taken from SccAutoSwitcher fork by Iurii Zhogoliev (https://github.com/yzhogoliev/SccAutoSwitcher).
+
 
 ### Options dialog page
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
+using System.Diagnostics;
 using System.IO;
 
 namespace SccAutoSwitcherVS2017
@@ -107,7 +108,8 @@ namespace SccAutoSwitcherVS2017
 
         public int OnBeforeOpenSolution(string pszSolutionFilename)
         {
-            DirectoryInfo currdir = new DirectoryInfo(Path.GetDirectoryName(pszSolutionFilename));
+            DirectoryInfo solutionDir = new DirectoryInfo(Path.GetDirectoryName(pszSolutionFilename));
+            DirectoryInfo currdir = solutionDir;
 
             _CurrentSolutionRcsType = RcsType.Unknown;
             while (true)
@@ -139,6 +141,12 @@ namespace SccAutoSwitcherVS2017
                 currdir = currdir.Parent;
             }
 
+            if (_CurrentSolutionRcsType == RcsType.Unknown && IsPerforce(solutionDir))
+            {
+                SccAutoSwitcherVS2017.RegisterPrimarySourceControlProvider(RcsType.Perforce);
+                _CurrentSolutionRcsType = RcsType.Perforce;
+            }
+
             return VSConstants.S_OK;
         }
 
@@ -146,6 +154,33 @@ namespace SccAutoSwitcherVS2017
         {
             pfShouldDelayLoadToNextIdle = false;
             return VSConstants.S_OK;
+        }
+
+        private static bool IsPerforce(DirectoryInfo directory)
+        {
+            const int ERROR_SUCCESS = 0;
+
+            try
+            {
+                using (var process = new Process
+                {
+                    StartInfo =
+                    {
+                        WorkingDirectory = directory.FullName,
+                        FileName = "p4.exe",
+                        Arguments = "where",
+                        CreateNoWindow = true,
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    }
+                })
+                {
+                    return process.Start() && process.WaitForExit(10000) && process.ExitCode == ERROR_SUCCESS;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

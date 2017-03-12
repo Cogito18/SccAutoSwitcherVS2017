@@ -24,11 +24,17 @@ namespace SccAutoSwitcherVS2017
         public const string VisualHGPackageId = "dadada00-dfd3-4e42-a61c-499121e136f3";
         public const string VisualHGSccProviderId = "dadada00-63c7-4363-b107-ad5d9d915d45";
 
+        public const string P4VSPackageId = "8d316614-311a-48f4-85f7-df7020f62357";
+        public const string P4VSPackageSccProviderId = "fda934f4-0492-4f67-a6eb-cbe0953649f0";
+
+
         public const string SccAutoSwitcherCollection = "SccAutoSwitcher";
 
         public const string SubversionProviderProperty = "SubversionProvider";
         public const string GitProviderProperty = "GitProvider";
         public const string MercurialProviderProperty = "MercurialProvider";
+        public const string PerforceProviderProperty = "PerforceProvider";
+
 
         private static SccProvider GetCurrentSccProvider()
         {
@@ -51,6 +57,8 @@ namespace SccAutoSwitcherVS2017
                     return SccProvider.HgSccPackage;
                 case VisualHGSccProviderId:
                     return SccProvider.VisualHG;
+                case P4VSPackageId:
+                    return SccProvider.P4VS;
                 default:
                     return SccProvider.Unknown;
             }
@@ -101,6 +109,20 @@ namespace SccAutoSwitcherVS2017
             }
         }
 
+        private static PerforceSccProvider GetPerforceSccProvider(string str)
+        {
+            switch (str)
+            {
+                case "P4VS":
+                    return PerforceSccProvider.P4VS;
+                case "Disabled":
+                    return PerforceSccProvider.Disabled;
+                default:
+                    return PerforceSccProvider.Default;
+            }
+        }
+
+
         private static RcsType GetRcsTypeFromSccProvider(SccProvider provider)
         {
             switch (provider)
@@ -114,6 +136,8 @@ namespace SccAutoSwitcherVS2017
                 case SccProvider.HgSccPackage:
                 case SccProvider.VisualHG:
                     return RcsType.Mercurial;
+                case SccProvider.P4VS:
+                    return RcsType.Perforce;
                 default:
                     return RcsType.Unknown;
             }
@@ -246,6 +270,40 @@ namespace SccAutoSwitcherVS2017
             return MercurialSccProvider.Disabled;
         }
 
+        public static PerforceSccProvider GetDefaultPerforceSccProvider()
+        {
+            var packageId = Guid.Parse(P4VSPackageId);
+
+            int installed;
+            var hr = _VsShell.IsPackageInstalled(ref packageId, out installed);
+            Marshal.ThrowExceptionForHR(hr);
+
+            return installed == 1
+                ? PerforceSccProvider.P4VS
+                : PerforceSccProvider.Disabled;
+        }
+
+        public static PerforceSccProvider GetPerforceSccProvider()
+        {
+            string providerStr = _SettingsStore.GetString(SccAutoSwitcherCollection, PerforceProviderProperty, null);
+            return GetPerforceSccProvider(providerStr);
+        }
+
+        public static void SetPerforceSccProvider(PerforceSccProvider provider)
+        {
+            _SettingsStore.CreateCollection(SccAutoSwitcherCollection);
+            if (provider == PerforceSccProvider.Default)
+                _SettingsStore.DeleteProperty(SccAutoSwitcherCollection, PerforceProviderProperty);
+            else
+                _SettingsStore.SetString(SccAutoSwitcherCollection, PerforceProviderProperty, provider.ToString());
+
+            if (provider == PerforceSccProvider.Disabled)
+                return;
+
+            if (_CurrentSolutionRcsType == RcsType.Perforce)
+                RegisterPrimarySourceControlProvider(RcsType.Perforce);
+        }
+
         public static RcsType GetLoadedRcsType()
         {
             SccProvider provider = GetCurrentSccProvider();
@@ -271,7 +329,8 @@ namespace SccAutoSwitcherVS2017
         GitSourceControlProvider,
         VisualStudioToolsForGit,
         HgSccPackage,
-        VisualHG
+        VisualHG,
+        P4VS
     }
 
     public enum RcsType
@@ -279,6 +338,7 @@ namespace SccAutoSwitcherVS2017
         Unknown = 0,
         Subversion,
         Git,
-        Mercurial
+        Mercurial,
+        Perforce
     }
 }

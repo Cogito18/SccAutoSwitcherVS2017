@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="SccAutoSwitcherVS2017.Jacek Chwastek.4fb3eac4-7e04-444c-99e0-339a6d3ec93c" Version="1.0" Language="en-US" Publisher="Jacek Chwastek" />
+    <Identity Id="SccAutoSwitcherVS2017.Jacek Chwastek.4fb3eac4-7e04-444c-99e0-339a6d3ec93c" Version="1.1" Language="en-US" Publisher="Jacek Chwastek" />
     <DisplayName>SccAutoSwitcherVS2017</DisplayName>
-    <Description xml:space="preserve">Auto load Scc providers depending on presence of reserved repository file or directories.  Visual Studio 2017 port of SccAutoSwitcher by ceztko.</Description>
+    <Description xml:space="preserve">Auto load Scc providers depending on presence of reserved repository file or directories.  Visual Studio 2017 port of SccAutoSwitcher by ceztko. Now supporting Perforce.</Description>
     <MoreInfo>https://github.com/Cogito18/SccAutoSwitcherVS2017</MoreInfo>
     <License>LICENSE.txt</License>
     <Icon>Resources\Icon.ico</Icon>
     <PreviewImage>Resources\Preview.png</PreviewImage>
-    <Tags>Scc, Git, Mercurial, Subversion, Switcher</Tags>
+    <Tags>Scc, Git, Mercurial, Subversion, Switcher, Perforce</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0,16.0)" />
